@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGK V2ray | Ultra High-Speed SG Tunnels</title>
+    <title>MGK V2ray | Ultra High-Speed SG Tunnels & 3D Interactive Background</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,14 +28,17 @@
         }
     </script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Animation CDN Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+    <!-- Three.js CDN for 3D Background Particle Network -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
@@ -43,15 +47,23 @@
             overflow-x: hidden;
             transition: background-color 0.4s ease, color 0.4s ease;
         }
-        #particles-js {
+
+        /* 3D Background Canvas Styling */
+        #bg-canvas {
             position: fixed;
-            width: 100%;
-            height: 100%;
             top: 0;
             left: 0;
-            z-index: 1;
+            width: 100vw;
+            height: 100vh;
             pointer-events: none;
+            z-index: 0;
         }
+
+        .content-layer {
+            position: relative;
+            z-index: 10;
+        }
+
         .glass-panel {
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -59,36 +71,36 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .light .glass-panel {
-            background: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.85);
             border: 1px solid rgba(226, 232, 240, 0.9);
-            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.06);
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.05);
         }
         .dark .glass-panel {
             background: rgba(15, 23, 42, 0.85);
             border: 1px solid rgba(51, 65, 85, 0.8);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
         }
         .light .glass-panel:hover {
             border-color: rgba(14, 165, 233, 0.6);
-            box-shadow: 0 25px 50px rgba(14, 165, 233, 0.15);
+            box-shadow: 0 20px 40px rgba(14, 165, 233, 0.12);
         }
         .dark .glass-panel:hover {
             border-color: rgba(56, 189, 248, 0.6);
-            box-shadow: 0 25px 50px rgba(56, 189, 248, 0.2);
+            box-shadow: 0 20px 40px rgba(56, 189, 248, 0.15);
         }
         .modal-glass {
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
         }
         .light .modal-glass {
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(14, 165, 233, 0.3);
-            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
         }
         .dark .modal-glass {
-            background: rgba(15, 23, 42, 0.96);
+            background: rgba(15, 23, 42, 0.95);
             border: 1px solid rgba(56, 189, 248, 0.3);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
         }
         .pulse-live {
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
@@ -99,170 +111,175 @@
             70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
-        #robot-canvas-container {
-            width: 180px;
-            height: 180px;
-            cursor: grab;
-        }
-        #robot-canvas-container:active {
-            cursor: grabbing;
-        }
         ::-webkit-scrollbar { width: 8px; }
         .light ::-webkit-scrollbar-track { background: #f1f5f9; }
         .dark ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* Button Animation Additions */
+        .animated-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animated-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease-out, height 0.6s ease-out;
+        }
+        .animated-btn:active::after {
+            width: 300px;
+            height: 300px;
+            opacity: 0;
+            transition: 0s;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col relative light bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
 
-    <div id="particles-js"></div>
+    <canvas id="bg-canvas"></canvas>
 
-    <header class="sticky top-0 z-40 backdrop-blur-xl border-b px-4 lg:px-16 py-4 flex items-center justify-between transition-colors duration-300 light:bg-white/85 light:border-slate-200 dark:bg-slate-900/85 dark:border-slate-800 shadow-sm">
-        <div class="flex items-center space-x-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-400 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white">
-                <i class="fa-solid fa-cube text-lg animated-cube"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-xl tracking-wide bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    MGK V2ray
-                </h1>
-                <p class="text-[9px] text-sky-500 uppercase tracking-widest font-semibold">Singapore High-Speed Tunnels</p>
-            </div>
-        </div>
-
-        <div class="flex items-center space-x-3">
-            <!-- Theme Toggle Button -->
-            <button onclick="toggleTheme()" class="w-10 h-10 rounded-2xl border flex items-center justify-center transition light:bg-slate-100 light:border-slate-200 light:text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-400 hover:scale-105">
-                <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
-            </button>
-
-            <div class="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-medium shadow-sm">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></span>
-                <span>SG Nodes Online</span>
-            </div>
-            <a href="https://wa.me/94703553460?text=i%20want%20to%20buy%20now" target="_blank" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-medium text-xs flex items-center space-x-2 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all duration-300">
-                <i class="fa-brands fa-whatsapp text-lg"></i>
-                <span class="hidden sm:inline">070 355 3460</span>
-            </a>
-        </div>
-    </header>
-
-    <main class="flex-grow container mx-auto px-4 py-10 max-w-7xl z-10">
-        
-        <!-- Hero Section with 3D Robot Companion -->
-        <div class="flex flex-col lg:flex-row items-center justify-between gap-8 mb-12 hero-content glass-panel rounded-3xl p-6 lg:p-10 border">
-            <div class="text-center lg:text-left max-w-2xl">
-                <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full light:bg-sky-50 light:border-sky-200 dark:bg-sky-950/40 dark:border-sky-800/60 light:text-sky-700 dark:text-sky-300 text-xs font-medium uppercase tracking-widest mb-4 border shadow-sm">
-                    <i class="fa-solid fa-bolt text-amber-500"></i>
-                    <span>AI-Powered SG Tunnels • Zero Latency</span>
-                </div>
-                <h2 class="text-3xl sm:text-5xl font-bold tracking-tight mb-4 leading-tight">
-                    Next-Gen <span class="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent">V2RAY</span> Tunnels
-                </h2>
-                <p class="light:text-slate-600 dark:text-slate-400 text-sm font-normal mb-6">
-                    Meet <strong class="text-sky-600 dark:text-sky-400">V2-Bot</strong>, your intelligent Singapore proxy assistant. Select your telecom network below to get instant high-speed configuration files.
-                </p>
-                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-medium light:text-slate-600 dark:text-slate-300">
-                    <span class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> Unlimited Quota</span>
-                    <span class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> Instant Delivery</span>
-                    <span class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> 24/7 Support</span>
-                </div>
-            </div>
-
-            <!-- 3D Mouse-Sensitive Robot Container -->
-            <div class="flex flex-col items-center justify-center relative group">
-                <div class="absolute inset-0 bg-gradient-to-tr from-sky-500/10 to-indigo-500/10 rounded-full blur-2xl"></div>
-                <div id="robot-canvas-container" class="relative z-10 rounded-2xl overflow-hidden shadow-xl border light:border-slate-200 dark:border-slate-800"></div>
-                <span class="text-[10px] font-semibold tracking-wider text-sky-500 uppercase mt-2 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/20">
-                    <i class="fa-solid fa-eye mr-1"></i> Interactive 3D Robot (Move Cursor)
-                </span>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-center gap-2 mb-10" id="filter-tabs" data-aos="fade-up">
-            <button onclick="setFilter('all')" class="filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 bg-sky-600 text-white shadow-md shadow-sky-500/20 scale-105" data-filter="all">
-                <i class="fa-solid fa-layer-group mr-1.5"></i> All Packages
-            </button>
-            <button onclick="setFilter('dialog')" class="filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="dialog">
-                <i class="fa-solid fa-signal mr-1.5 text-red-500"></i> Dialog
-            </button>
-            <button onclick="setFilter('mobitel')" class="filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="mobitel">
-                <i class="fa-solid fa-tower-cell mr-1.5 text-emerald-600"></i> Mobitel
-            </button>
-            <button onclick="setFilter('hutch')" class="filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="hutch">
-                <i class="fa-solid fa-wifi mr-1.5 text-amber-500"></i> Hutch
-            </button>
-            <button onclick="setFilter('airtel')" class="filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="airtel">
-                <i class="fa-solid fa-globe mr-1.5 text-rose-600"></i> Airtel
-            </button>
-            <button onclick="setFilter('slt')" class="filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="slt">
-                <i class="fa-solid fa-network-wired mr-1.5 text-blue-600"></i> SLT
-            </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="packages-grid">
-            <!-- Dynamically populated via JavaScript -->
-        </div>
-    </main>
-
-    <div id="buy-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-        <div class="modal-glass rounded-3xl w-full max-w-lg p-6 lg:p-8 relative transform scale-90 transition-transform duration-300" id="modal-box">
-            
-            <button onclick="closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-9 h-9 rounded-full light:bg-slate-100 dark:bg-slate-800 border light:border-slate-200 dark:border-slate-700 flex items-center justify-center transition">
-                <i class="fa-solid fa-xmark text-sm"></i>
-            </button>
-
-            <!-- Modal Header -->
-            <div class="flex items-center space-x-4 mb-6">
-                <div id="modal-network-icon" class="w-13 h-13 rounded-2xl flex items-center justify-center text-xl shadow-lg text-white">
-                    <i class="fa-solid fa-wifi"></i>
+    <div class="content-layer flex flex-col min-h-screen">
+        <header class="sticky top-0 z-40 backdrop-blur-xl border-b px-4 lg:px-16 py-4 flex items-center justify-between transition-colors duration-300 light:bg-white/80 light:border-slate-200 dark:bg-slate-900/80 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center space-x-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-400 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white">
+                    <i class="fa-solid fa-cube text-lg animated-cube"></i>
                 </div>
                 <div>
-                    <span id="modal-badge" class="px-2.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase border">NETWORK</span>
-                    <h3 id="modal-title" class="text-lg font-semibold mt-1">Package Name</h3>
+                    <h1 class="font-bold text-xl tracking-wide bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        MGK V2ray
+                    </h1>
+                    <p class="text-[9px] text-sky-500 uppercase tracking-widest font-semibold">Singapore High-Speed Tunnels</p>
                 </div>
             </div>
 
-            <!-- Server Specs Info Box -->
-            <div class="light:bg-slate-50 dark:bg-slate-900/60 rounded-2xl p-4 border light:border-slate-200 dark:border-slate-800 space-y-2.5 mb-6 text-xs light:text-slate-600 dark:text-slate-300">
-                <div class="flex items-center justify-between">
-                    <span class="light:text-slate-500 dark:text-slate-400 flex items-center"><i class="fa-solid fa-server text-sky-500 mr-2"></i> Server Location:</span>
-                    <span class="font-medium text-sky-600 dark:text-sky-400">Singapore SG Node</span>
+            <div class="flex items-center space-x-3">
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleTheme()" class="animated-btn w-10 h-10 rounded-2xl border flex items-center justify-center transition light:bg-slate-100 light:border-slate-200 light:text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-400 hover:scale-105">
+                    <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
+                </button>
+
+                <div class="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-medium shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></span>
+                    <span>SG Nodes Online</span>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="light:text-slate-500 dark:text-slate-400 flex items-center"><i class="fa-solid fa-clock text-indigo-500 mr-2"></i> Duration:</span>
-                    <span class="font-medium">30 Days (1 Month)</span>
+                <a href="https://wa.me/94703553460?text=i%20want%20to%20buy%20now" target="_blank" class="animated-btn px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-medium text-xs flex items-center space-x-2 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all duration-300">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span class="hidden sm:inline">070 355 3460</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="flex-grow container mx-auto px-4 py-12 max-w-7xl">
+            
+            <!-- Hero Section -->
+            <div class="text-center max-w-3xl mx-auto mb-12 hero-content">
+                <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full light:bg-sky-50 light:border-sky-200 dark:bg-sky-950/40 dark:border-sky-800/60 light:text-sky-700 dark:text-sky-300 text-xs font-medium uppercase tracking-widest mb-4 border shadow-sm">
+                    <i class="fa-solid fa-bolt text-amber-500"></i>
+                    <span>Zero Latency • Unlimited Quota • Instant Delivery</span>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="light:text-slate-500 dark:text-slate-400 flex items-center"><i class="fa-solid fa-shield-halved text-emerald-500 mr-2"></i> Policy:</span>
-                    <span class="font-medium text-emerald-600 dark:text-emerald-400">No Torrenting Allowed</span>
-                </div>
+                <h2 class="text-4xl sm:text-6xl font-bold tracking-tight mb-4 leading-tight">
+                    <span class="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent">V2RAY</span>
+                </h2>
+                <p class="light:text-slate-600 dark:text-slate-400 text-sm font-normal">
+                    Select your telecom network below to get high-speed Singapore V2Ray configuration files instantly.
+                </p>
             </div>
 
-            <!-- Data Package Options -->
-            <div class="mb-6">
-                <label class="block text-xs font-semibold text-sky-600 dark:text-sky-400 uppercase tracking-wider mb-2.5">Select Data Plan & Price</label>
-                <div class="space-y-2.5" id="data-options-container">
-                    <!-- Dynamic Radio Selection Cards -->
-                </div>
+            <!-- Filter Tabs with Button Animations -->
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-12" id="filter-tabs" data-aos="fade-up">
+                <button onclick="setFilter('all')" class="animated-btn filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 bg-sky-600 text-white shadow-md shadow-sky-500/20 scale-105" data-filter="all">
+                    <i class="fa-solid fa-layer-group mr-1.5"></i> All Packages
+                </button>
+                <button onclick="setFilter('dialog')" class="animated-btn filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="dialog">
+                    <i class="fa-solid fa-signal mr-1.5 text-red-500"></i> Dialog
+                </button>
+                <button onclick="setFilter('mobitel')" class="animated-btn filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="mobitel">
+                    <i class="fa-solid fa-tower-cell mr-1.5 text-emerald-600"></i> Mobitel
+                </button>
+                <button onclick="setFilter('hutch')" class="animated-btn filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="hutch">
+                    <i class="fa-solid fa-wifi mr-1.5 text-amber-500"></i> Hutch
+                </button>
+                <button onclick="setFilter('airtel')" class="animated-btn filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="airtel">
+                    <i class="fa-solid fa-globe mr-1.5 text-rose-600"></i> Airtel
+                </button>
+                <button onclick="setFilter('slt')" class="animated-btn filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm" data-filter="slt">
+                    <i class="fa-solid fa-network-wired mr-1.5 text-blue-600"></i> SLT
+                </button>
             </div>
 
-            <!-- WhatsApp Direct Buy Button -->
-            <button onclick="submitToWhatsApp()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-semibold text-sm flex items-center justify-center space-x-2.5 shadow-lg shadow-emerald-500/20 hover:scale-[1.01] transition-all duration-300 cursor-pointer">
-                <i class="fa-brands fa-whatsapp text-xl"></i>
-                <span>Buy Now via WhatsApp</span>
-            </button>
+            <!-- Packages Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="packages-grid">
+                <!-- Populated via JS -->
+            </div>
+        </main>
 
-            <p class="text-center text-[11px] light:text-slate-500 dark:text-slate-400 mt-4">
-                Instant delivery directly to WhatsApp hotline: <span class="text-sky-600 dark:text-sky-400 font-medium">070 355 3460</span>
-            </p>
+        <div id="buy-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+            <div class="modal-glass rounded-3xl w-full max-w-lg p-6 lg:p-8 relative transform scale-90 transition-transform duration-300" id="modal-box">
+                
+                <button onclick="closeModal()" class="animated-btn absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-9 h-9 rounded-full light:bg-slate-100 dark:bg-slate-800 border light:border-slate-200 dark:border-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+
+                <!-- Modal Header -->
+                <div class="flex items-center space-x-4 mb-6">
+                    <div id="modal-network-icon" class="w-13 h-13 rounded-2xl flex items-center justify-center text-xl shadow-lg text-white">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <div>
+                        <span id="modal-badge" class="px-2.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase border">NETWORK</span>
+                        <h3 id="modal-title" class="text-lg font-semibold mt-1">Package Name</h3>
+                    </div>
+                </div>
+
+                <!-- Server Specs Info Box -->
+                <div class="light:bg-slate-50 dark:bg-slate-900/60 rounded-2xl p-4 border light:border-slate-200 dark:border-slate-800 space-y-2.5 mb-6 text-xs light:text-slate-600 dark:text-slate-300">
+                    <div class="flex items-center justify-between">
+                        <span class="light:text-slate-500 dark:text-slate-400 flex items-center"><i class="fa-solid fa-server text-sky-500 mr-2"></i> Server Location:</span>
+                        <span class="font-medium text-sky-600 dark:text-sky-400">Singapore SG Node</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="light:text-slate-500 dark:text-slate-400 flex items-center"><i class="fa-solid fa-clock text-indigo-500 mr-2"></i> Duration:</span>
+                        <span class="font-medium">30 Days (1 Month)</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="light:text-slate-500 dark:text-slate-400 flex items-center"><i class="fa-solid fa-shield-halved text-emerald-500 mr-2"></i> Policy:</span>
+                        <span class="font-medium text-emerald-600 dark:text-emerald-400">No Torrenting Allowed</span>
+                    </div>
+                </div>
+
+                <!-- Data Package Options -->
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-sky-600 dark:text-sky-400 uppercase tracking-wider mb-2.5">Select Data Plan & Price</label>
+                    <div class="space-y-2.5" id="data-options-container">
+                        <!-- Dynamic Radio Selection Cards -->
+                    </div>
+                </div>
+
+                <!-- WhatsApp Direct Buy Button -->
+                <button onclick="submitToWhatsApp()" class="animated-btn w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-semibold text-sm flex items-center justify-center space-x-2.5 shadow-lg shadow-emerald-500/20 hover:scale-[1.01] transition-all duration-300 cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    <span>Buy Now via WhatsApp</span>
+                </button>
+
+                <p class="text-center text-[11px] light:text-slate-500 dark:text-slate-400 mt-4">
+                    Instant delivery directly to WhatsApp hotline: <span class="text-sky-600 dark:text-sky-400 font-medium">070 355 3460</span>
+                </p>
+            </div>
         </div>
-    </div>
 
-    <footer class="light:bg-white dark:bg-slate-900 border-t light:border-slate-200 dark:border-slate-800 py-6 text-center text-xs light:text-slate-500 dark:text-slate-400 z-10 transition-colors">
-        <p class="font-medium light:text-slate-700 dark:text-slate-300 mb-1">MGK V2ray &copy; 2026. All Rights Reserved.</p>
-        <p>WhatsApp Support Hotline: <span class="text-sky-600 dark:text-sky-400 font-medium">070 355 3460</span></p>
-    </footer>
+        <footer class="light:bg-white dark:bg-slate-900 border-t light:border-slate-200 dark:border-slate-800 py-6 text-center text-xs light:text-slate-500 dark:text-slate-400 transition-colors">
+            <p class="font-medium light:text-slate-700 dark:text-slate-300 mb-1">MGK V2ray &copy; 2026. All Rights Reserved.</p>
+            <p>WhatsApp Support Hotline: <span class="text-sky-600 dark:text-sky-400 font-medium">070 355 3460</span></p>
+        </footer>
+    </div>
 
     <script>
         const packages = [
@@ -359,170 +376,90 @@
         let selectedPackage = null;
         let selectedPlanValue = '100GB - Rs. 400';
 
-        // Three.js 3D Robot Companion Implementation
-        let robotScene, robotCamera, robotRenderer, robotGroup, robotHead, leftEye, rightEye;
-        let mouseX = 0, mouseY = 0, targetRotationX = 0, targetRotationY = 0;
+        // --- THREE.JS 3D BACKGROUND PARTICLE NETWORK ANIMATION ---
+        let bgScene, bgCamera, bgRenderer, particleMesh;
+        let mouseX = 0, mouseY = 0;
 
-        function init3DRobot() {
-            const container = document.getElementById('robot-canvas-container');
-            if(!container) return;
+        function init3DBackground() {
+            const canvas = document.getElementById('bg-canvas');
+            if(!canvas) return;
 
-            robotScene = new THREE.Scene();
-            robotCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-            robotCamera.position.z = 6;
+            bgScene = new THREE.Scene();
 
-            robotRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            robotRenderer.setSize(180, 180);
-            robotRenderer.setPixelRatio(window.devicePixelRatio);
-            container.appendChild(robotRenderer.domElement);
+            bgCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+            bgCamera.position.z = 400;
 
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-            robotScene.add(ambientLight);
+            bgRenderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            bgRenderer.setSize(window.innerWidth, window.innerHeight);
+            bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            const pointLight = new THREE.PointLight(0x0ea5e9, 2, 50);
-            pointLight.position.set(5, 5, 5);
-            robotScene.add(pointLight);
+            // Create Glowing Particle Field
+            const particleCount = 700;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
 
-            const pointLight2 = new THREE.PointLight(0x10b981, 1.5, 50);
-            pointLight2.position.set(-5, -5, 5);
-            robotScene.add(pointLight2);
+            for(let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 1000;
+                positions[i+1] = (Math.random() - 0.5) * 1000;
+                positions[i+2] = (Math.random() - 0.5) * 500;
+            }
 
-            // Robot Group
-            robotGroup = new THREE.Group();
-            robotScene.add(robotGroup);
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-            // Robot Head (Rounded Box / Sphere combo)
-            const headGeo = new THREE.BoxGeometry(1.8, 1.4, 1.4);
-            const headMat = new THREE.MeshStandardMaterial({
+            const material = new THREE.PointsMaterial({
+                size: 3.5,
                 color: 0x0ea5e9,
-                metalness: 0.6,
-                roughness: 0.2,
-                wireframe: false
+                transparent: true,
+                opacity: 0.75,
+                blending: THREE.AdditiveBlending
             });
-            robotHead = new THREE.Mesh(headGeo, headMat);
-            robotGroup.add(robotHead);
 
-            // Antenna
-            const antennaGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 16);
-            const antennaMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8 });
-            const antenna = new THREE.Mesh(antennaGeo, antennaMat);
-            antenna.position.set(0, 1.0, 0);
-            robotGroup.add(antenna);
+            particleMesh = new THREE.Points(geometry, material);
+            bgScene.add(particleMesh);
 
-            const antennaBallGeo = new THREE.SphereGeometry(0.15, 16, 16);
-            const antennaBallMat = new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x10b981, emissiveIntensity: 0.8 });
-            const antennaBall = new THREE.Mesh(antennaBallGeo, antennaBallMat);
-            antennaBall.position.set(0, 1.4, 0);
-            robotGroup.add(antennaBall);
-
-            // Eyes (Glowing Blue / Cyan)
-            const eyeGeo = new THREE.BoxGeometry(0.35, 0.2, 0.2);
-            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 1 });
-            
-            leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-            leftEye.position.set(-0.45, 0.1, 0.72);
-            robotGroup.add(leftEye);
-
-            rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-            rightEye.position.set(0.45, 0.1, 0.72);
-            robotGroup.add(rightEye);
-
-            // Ears / Side Bolts
-            const earGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.2, 16);
-            earGeo.rotateX(Math.PI / 2);
-            const earMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9 });
-            
-            const leftEar = new THREE.Mesh(earGeo, earMat);
-            leftEar.position.set(-1.0, 0, 0);
-            robotGroup.add(leftEar);
-
-            const rightEar = new THREE.Mesh(earGeo, earMat);
-            rightEar.position.set(1.0, 0, 0);
-            robotGroup.add(rightEar);
-
-            // Mouse Move Listener for tracking cursor
+            // Mouse tracking for subtle background rotation
             window.addEventListener('mousemove', (e) => {
-                const rect = container.getBoundingClientRect();
-                const x = e.clientX - (rect.left + rect.width / 2);
-                const y = e.clientY - (rect.top + rect.height / 2);
-                mouseX = x * 0.005;
-                mouseY = y * 0.005;
+                mouseX = (e.clientX - window.innerWidth / 2) * 0.2;
+                mouseY = (e.clientY - window.innerHeight / 2) * 0.2;
             });
 
-            animateRobot();
-        }
-
-        function animateRobot() {
-            requestAnimationFrame(animateRobot);
-
-            // Smooth interpolation towards mouse position
-            targetRotationY += (mouseX - targetRotationY) * 0.1;
-            targetRotationX += (mouseY - targetRotationX) * 0.1;
-
-            robotGroup.rotation.y = targetRotationY;
-            robotGroup.rotation.x = targetRotationX;
-
-            // Gentle floating animation
-            robotGroup.position.y = Math.sin(Date.now() * 0.003) * 0.15;
-
-            robotRenderer.render(robotScene, robotCamera);
-        }
-
-        function initParticles(isDark) {
-            particlesJS("particles-js", {
-                particles: {
-                    number: { value: 65, density: { enable: true, value_area: 800 } },
-                    color: { value: isDark ? "#38bdf8" : "#0284c7" },
-                    shape: { type: "circle" },
-                    opacity: { value: isDark ? 0.35 : 0.25, random: true },
-                    size: { value: 3.5, random: true },
-                    line_linked: {
-                        enable: true,
-                        distance: 140,
-                        color: isDark ? "#334155" : "#cbd5e1",
-                        opacity: 0.4,
-                        width: 1
-                    },
-                    move: {
-                        enable: true,
-                        speed: 2,
-                        direction: "none",
-                        random: false,
-                        straight: false,
-                        out_mode: "out",
-                        bounce: false
-                    }
-                },
-                interactivity: {
-                    detect_on: "canvas",
-                    events: {
-                        onhover: { enable: true, mode: "grab" },
-                        onclick: { enable: true, mode: "push" },
-                        resize: true
-                    },
-                    modes: {
-                        grab: { distance: 150, line_linked: { opacity: 0.6 } }
-                    }
-                },
-                retina_detect: true
+            window.addEventListener('resize', () => {
+                bgCamera.aspect = window.innerWidth / window.innerHeight;
+                bgCamera.updateProjectionMatrix();
+                bgRenderer.setSize(window.innerWidth, window.innerHeight);
             });
+
+            animateBackground();
         }
+
+        function animateBackground() {
+            requestAnimationFrame(animateBackground);
+
+            if(particleMesh) {
+                particleMesh.rotation.x += 0.0005;
+                particleMesh.rotation.y += 0.0008;
+
+                // Parallax smoothing toward mouse coordinates
+                bgCamera.position.x += (mouseX - bgCamera.position.x) * 0.05;
+                bgCamera.position.y += (-mouseY - bgCamera.position.y) * 0.05;
+                bgCamera.lookAt(bgScene.position);
+            }
+
+            bgRenderer.render(bgScene, bgCamera);
+        }
+        // --------------------------------------------------------
 
         function toggleTheme() {
             const html = document.documentElement;
             const themeIcon = document.getElementById('theme-icon');
-            const isDark = html.classList.contains('light');
-            if (isDark) {
+            if (html.classList.contains('light')) {
                 html.classList.remove('light');
                 html.classList.add('dark');
                 themeIcon.className = 'fa-solid fa-sun text-sm text-amber-400';
-                initParticles(true);
             } else {
                 html.classList.remove('dark');
                 html.classList.add('light');
                 themeIcon.className = 'fa-solid fa-moon text-sm text-slate-700';
-                initParticles(false);
             }
         }
 
@@ -530,9 +467,9 @@
             currentFilter = net;
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if(btn.dataset.filter === net) {
-                    btn.className = 'filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 bg-sky-600 text-white shadow-md shadow-sky-500/20 scale-105';
+                    btn.className = 'animated-btn filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 bg-sky-600 text-white shadow-md shadow-sky-500/20 scale-105';
                 } else {
-                    btn.className = 'filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm';
+                    btn.className = 'animated-btn filter-btn px-5 py-2.5 rounded-2xl font-medium text-xs uppercase tracking-wider transition-all duration-300 light:bg-white light:text-slate-700 light:border light:border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border dark:border-slate-800 shadow-sm';
                 }
             });
             renderGrid();
@@ -550,20 +487,19 @@
                 const card = document.createElement('div');
                 card.className = 'glass-panel rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group cursor-pointer pkg-card';
                 card.setAttribute('data-aos', 'fade-up');
-                card.setAttribute('data-aos-delay', (index * 60).toString());
+                card.setAttribute('data-aos-delay', (index * 70).toString());
                 card.onclick = () => openModal(pkg.id);
 
-                // Subtle 3D tilt effect on mousemove
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
                     const xc = rect.width / 2;
                     const yc = rect.height / 2;
-                    const dx = (x - xc) / 22;
-                    const dy = (yc - y) / 22;
+                    const dx = (x - xc) / 25;
+                    const dy = (yc - y) / 25;
                     gsap.to(card, {
-                        transform: `perspective(1000px) rotateX(${dy}deg) rotateY(${dx}deg) translateY(-5px)`,
+                        transform: `perspective(1000px) rotateX(${dy}deg) rotateY(${dx}deg) translateY(-4px)`,
                         duration: 0.2
                     });
                 });
@@ -576,7 +512,7 @@
                 });
 
                 card.innerHTML = `
-                    <div class="absolute -right-10 -top-10 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/25 transition-all"></div>
+                    <div class="absolute -right-10 -top-10 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20 transition-all"></div>
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-lg border ${pkg.badge}">${pkg.provider}</span>
@@ -588,7 +524,7 @@
                     <div>
                         <div class="pt-4 border-t light:border-slate-200 dark:border-slate-800 flex items-center justify-between">
                             <span class="text-xs light:text-slate-500 dark:text-slate-400 font-medium">From <strong class="text-sky-600 dark:text-sky-400 font-semibold text-sm">Rs. 400</strong></span>
-                            <button class="px-3.5 py-2 rounded-xl bg-gradient-to-r ${pkg.color} text-white font-medium text-xs flex items-center space-x-1.5 shadow-md group-hover:scale-105 transition-transform">
+                            <button class="animated-btn px-3.5 py-2 rounded-xl bg-gradient-to-r ${pkg.color} text-white font-medium text-xs flex items-center space-x-1.5 shadow-md group-hover:scale-105 transition-transform">
                                 <i class="fa-solid fa-cart-shopping"></i>
                                 <span>Buy Now</span>
                             </button>
@@ -600,9 +536,9 @@
 
             anime({
                 targets: '.pkg-card',
-                translateY: [25, 0],
+                translateY: [20, 0],
                 opacity: [0, 1],
-                delay: anime.stagger(50),
+                delay: anime.stagger(60),
                 easing: 'easeOutQuad'
             });
         }
@@ -627,19 +563,18 @@
 
             dataPlans.forEach((plan, idx) => {
                 const optionBox = document.createElement('div');
-                optionBox.className = `p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${idx === 0 ? 'light:bg-sky-50 light:border-sky-400 dark:bg-sky-950/40 dark:border-sky-500 shadow-sm' : 'light:bg-slate-50 light:border-slate-200 dark:bg-slate-900 dark:border-slate-800 light:text-slate-600 dark:text-slate-300'}`;
+                optionBox.className = `p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${idx === 0 ? 'light:bg-sky-50 light:border-sky-400 dark:bg-sky-950/40 dark:border-sky-500 shadow-sm' : 'light:bg-slate-50 light:border-slate-200 dark:bg-slate-900 dark:border-slate-800 light:text-slate-600 dark:text-slate-300'}`;
                 
-                optionBox.onclick = (e) => {
-                    e.stopPropagation();
+                optionBox.onclick = () => {
                     selectedPlanValue = plan.value;
                     document.querySelectorAll('#data-options-container > div').forEach((box, i) => {
                         const dot = box.querySelector('.radio-dot');
                         if (i === idx) {
-                            box.className = 'p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between light:bg-sky-50 light:border-sky-400 dark:bg-sky-950/40 dark:border-sky-500 shadow-sm';
+                            box.className = 'p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between light:bg-sky-50 light:border-sky-400 dark:bg-sky-950/40 dark:border-sky-500 shadow-sm';
                             dot.classList.remove('opacity-0');
                             dot.classList.add('opacity-100');
                         } else {
-                            box.className = 'p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between light:bg-slate-50 light:border-slate-200 dark:bg-slate-900 dark:border-slate-800 light:text-slate-600 dark:text-slate-300';
+                            box.className = 'p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between light:bg-slate-50 light:border-slate-200 dark:bg-slate-900 dark:border-slate-800 light:text-slate-600 dark:text-slate-300';
                             dot.classList.remove('opacity-100');
                             dot.classList.add('opacity-0');
                         }
@@ -663,14 +598,14 @@
             modal.classList.remove('hidden');
 
             gsap.to(modal, { opacity: 1, duration: 0.3 });
-            gsap.fromTo(box, { scale: 0.85, y: 20 }, { scale: 1, y: 0, duration: 0.35, ease: "back.out(1.5)" });
+            gsap.fromTo(box, { scale: 0.88, y: 15 }, { scale: 1, y: 0, duration: 0.35, ease: "back.out(1.5)" });
         }
 
         function closeModal() {
             const modal = document.getElementById('buy-modal');
             const box = document.getElementById('modal-box');
             
-            gsap.to(box, { scale: 0.85, y: 20, duration: 0.2 });
+            gsap.to(box, { scale: 0.88, y: 15, duration: 0.2 });
             gsap.to(modal, {
                 opacity: 0,
                 duration: 0.2,
@@ -691,25 +626,24 @@
 
         window.onload = () => {
             AOS.init({ duration: 800, once: true });
-            initParticles(false);
-            init3DRobot();
 
             gsap.from(".hero-content", {
-                y: 30,
+                y: 25,
                 opacity: 0,
-                duration: 1,
+                duration: 0.9,
                 ease: "power3.out"
             });
 
             anime({
                 targets: '.animated-cube',
                 rotate: '1turn',
-                duration: 12000,
+                duration: 10000,
                 easing: 'linear',
                 loop: true
             });
 
             renderGrid();
+            init3DBackground();
         };
     </script>
 </body>
