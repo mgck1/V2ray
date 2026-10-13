@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
@@ -367,14 +366,14 @@
         ];
 
         const dataPlans = [
-            { label: '100 GB Data Quota', price: 'Rs. 400', value: '100GB - Rs. 400' },
-            { label: '200 GB Data Quota', price: 'Rs. 500', value: '200GB - Rs. 500' },
+            { label: '100 GB Data Quota', price: 'Rs. 350', value: '100GB - Rs. 350' },
+            { label: '200 GB Data Quota', price: 'Rs. 450', value: '200GB - Rs. 450' },
             { label: 'Unlimited Data Quota', price: 'Rs. 700', value: 'Unlimited - Rs. 700' }
         ];
 
         let currentFilter = 'all';
         let selectedPackage = null;
-        let selectedPlanValue = '100GB - Rs. 400';
+        let selectedPlanValue = '100GB - Rs. 350';
 
         // --- THREE.JS 3D BACKGROUND PARTICLE NETWORK ANIMATION ---
         let bgScene, bgCamera, bgRenderer, particleMesh;
@@ -523,7 +522,7 @@
                     </div>
                     <div>
                         <div class="pt-4 border-t light:border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                            <span class="text-xs light:text-slate-500 dark:text-slate-400 font-medium">From <strong class="text-sky-600 dark:text-sky-400 font-semibold text-sm">Rs. 400</strong></span>
+                            <span class="text-xs light:text-slate-500 dark:text-slate-400 font-medium">From <strong class="text-sky-600 dark:text-sky-400 font-semibold text-sm">Rs. 350</strong></span>
                             <button class="animated-btn px-3.5 py-2 rounded-xl bg-gradient-to-r ${pkg.color} text-white font-medium text-xs flex items-center space-x-1.5 shadow-md group-hover:scale-105 transition-transform">
                                 <i class="fa-solid fa-cart-shopping"></i>
                                 <span>Buy Now</span>
@@ -618,7 +617,7 @@
         function submitToWhatsApp() {
             if(!selectedPackage) return;
             const phoneNumber = "94703553460";
-            const message = `i want to buy now\n\nPackage: ${selectedPackage.title}\nData Plan: ${selectedPlanValue}\nServer: Singapore SG Node`;
+            const message = `i want to buy now\\n\\nPackage: ${selectedPackage.title}\\nData Plan: ${selectedPlanValue}\\nServer: Singapore SG Node`;
             const encodedUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
             window.open(encodedUrl, '_blank');
             closeModal();
@@ -648,3 +647,6 @@
     </script>
 </body>
 </html>
+'''
+
+print("Ready")
